@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filip Claeys: Offset Printing &amp; Colour Management</title>
+<meta name="description" content="Portfolio of offset printing and colour management work: process standardisation, ISO 12647-2 control, and digital tools for the press room.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDEFEF;
+    --ink:#1B1B1A;
+    --steel:#5B6066;
+    --steel-light:#9BA0A4;
+    --cyan:#009FDB;
+    --magenta:#EC008C;
+    --yellow:#F5D800;
+    --green:#1FA855;
+    --line:#C9CCCC;
+    --strip-w:34px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:'Inter',sans-serif; line-height:1.6;
+    padding-left:var(--strip-w);
+  }
+  ::selection{background:var(--yellow); color:var(--ink);}
+  a{color:inherit;}
+  :focus-visible{outline:3px solid var(--magenta); outline-offset:3px;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif;}
+
+  /* ---- signature: vertical CMYK colour-control strip ---- */
+  .color-strip{
+    position:fixed; top:0; left:0; width:var(--strip-w); height:100%;
+    background:var(--ink); display:flex; flex-direction:column; z-index:200;
+  }
+  .color-strip .patch{flex:1; min-height:26px;}
+  .color-strip .patch.c{background:var(--cyan);}
+  .color-strip .patch.m{background:var(--magenta);}
+  .color-strip .patch.y{background:var(--yellow);}
+  .color-strip .patch.k{background:#3a3a38;}
+
+  .wrap{max-width:920px; margin:0 auto; padding:0 32px;}
+
+  /* ---- register mark divider ---- */
+  .register{
+    display:flex; align-items:center; gap:14px;
+    margin:0 auto; width:24px; height:24px; position:relative;
+  }
+  .register::before,.register::after{
+    content:""; position:absolute; background:var(--steel-light);
+  }
+  .register::before{ width:100%; height:1px; top:50%; left:0; }
+  .register::after{ width:1px; height:100%; left:50%; top:0; }
+  .register-row{display:flex; justify-content:center; padding:48px 0;}
+
+  header{padding:96px 0 72px;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--steel); display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow .dot{width:7px; height:7px; border-radius:50%; background:var(--green);}
+  h1{
+    font-size:clamp(34px,5.4vw,58px); font-weight:700; line-height:1.06;
+    letter-spacing:-.01em; margin:18px 0 22px; max-width:14ch;
+  }
+  header p.lede{font-size:18px; color:var(--steel); max-width:52ch;}
+
+  nav{
+    display:flex; gap:26px; margin-top:36px; flex-wrap:wrap;
+    font-family:'JetBrains Mono',monospace; font-size:13px;
+  }
+  nav a{
+    text-decoration:none; color:var(--ink); border-bottom:2px solid var(--line);
+    padding-bottom:2px; transition:border-color .15s;
+  }
+  nav a:hover{border-color:var(--magenta);}
+
+  section{padding:64px 0;}
+  .section-head{display:flex; align-items:baseline; gap:16px; margin-bottom:36px;}
+  .section-num{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--steel-light);}
+  h2{font-size:26px; font-weight:600;}
+
+  /* about */
+  .about-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:48px; align-items:start;}
+  .about-grid p{margin-bottom:16px; color:var(--ink);}
+  .about-grid p.muted{color:var(--steel);}
+  .credentials{
+    background:#fff; border:1px solid var(--line); border-radius:2px; padding:24px;
+  }
+  .credentials dl{display:flex; flex-direction:column; gap:16px;}
+  .credentials dt{font-size:13px; color:var(--steel);}
+  .credentials dd{font-family:'JetBrains Mono',monospace; font-size:14px; margin-top:3px;}
+
+  /* expertise grid */
+  .expertise-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1px;
+    background:var(--line); border:1px solid var(--line);
+  }
+  .expertise-card{background:var(--paper); padding:28px 22px;}
+  .expertise-card .swatch{width:22px; height:22px; margin-bottom:16px; border-radius:50%;}
+  .expertise-card h3{font-size:16px; margin-bottom:8px;}
+  .expertise-card p{font-size:14px; color:var(--steel);}
+
+  /* projects */
+  .project{
+    border:1px solid var(--line); background:#fff; border-radius:2px;
+    padding:32px; margin-bottom:24px;
+  }
+  .project-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:20px;
+    flex-wrap:wrap; margin-bottom:14px;
+  }
+  .project h3{font-size:19px;}
+  .status{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em;
+    text-transform:uppercase; padding:4px 9px; border-radius:20px; white-space:nowrap;
+  }
+  .status.active{background:rgba(31,168,85,.12); color:var(--green);}
+  .status.done{background:rgba(0,159,219,.12); color:var(--cyan);}
+  .status.growing{background:rgba(224,164,0,.14); color:#a87700;}
+
+  .project.placeholder{
+    border-style:dashed; background:transparent; text-align:center;
+  }
+  .project.placeholder h3{color:var(--steel);}
+  .project.placeholder p{margin:0 auto; text-align:center;}
+  .project p{color:var(--steel); font-size:15px; margin-bottom:14px; max-width:62ch;}
+  .tags{display:flex; gap:8px; flex-wrap:wrap;}
+  .tag{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--steel);
+    border:1px solid var(--line); padding:3px 9px; border-radius:20px;
+  }
+  .feature-list{list-style:none; margin:0 0 18px; display:flex; flex-direction:column; gap:9px;}
+  .feature-list li{
+    display:flex; align-items:flex-start; gap:10px; font-size:14px; color:var(--ink);
+  }
+  .feature-list li::before{
+    content:""; flex:0 0 6px; width:6px; height:6px; border-radius:50%;
+    background:var(--cyan); margin-top:6px;
+  }
+
+  .swatch-example{margin:6px 0 22px;}
+  .swatch-example .caption{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--steel-light);
+    margin-bottom:8px;
+  }
+  .swatch-table{
+    border:2px solid var(--ink); border-radius:2px; overflow:hidden;
+    max-width:520px;
+  }
+  .swatch-table .greenbar{
+    background:#9FC97A; height:22px; border-bottom:2px solid var(--ink);
+  }
+  .swatch-table .row{display:grid; grid-template-columns:repeat(4,minmax(0,1fr));}
+  .swatch-table .head{
+    color:var(--ink); font-family:Georgia,'Times New Roman',serif;
+    font-weight:700; font-size:16px; text-align:center; padding:10px 6px;
+    border-right:2px solid var(--ink); border-bottom:2px solid var(--ink);
+  }
+  .swatch-table .head:last-child{border-right:none;}
+  .swatch-table .cell{
+    background:#fff; padding:14px 8px; text-align:center;
+    border-right:2px solid var(--ink); font-family:'Inter',sans-serif;
+    min-width:0; overflow-wrap:break-word;
+  }
+  .swatch-table .cell:last-child{border-right:none;}
+  .swatch-table .cell .dot{
+    width:14px; height:14px; border-radius:2px; display:block;
+    margin:0 auto 6px;
+  }
+  .swatch-table .cell .code{font-size:13px; font-weight:600;}
+  .swatch-table .cell .sub{font-size:12px; color:var(--steel); margin-top:4px;}
+
+  .spec-table{
+    border:2px solid var(--ink); border-radius:2px; overflow:hidden;
+    max-width:420px; font-family:'Inter',sans-serif;
+  }
+  .spec-table .srow{
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+    border-bottom:2px solid var(--ink);
+  }
+  .spec-table .srow:last-child{border-bottom:none;}
+  .spec-table .srow .sc{
+    padding:10px 12px; text-align:center; border-right:2px solid var(--ink);
+    font-size:13px; min-width:0; overflow-wrap:break-word;
+  }
+  .spec-table .srow .sc:last-child{border-right:none;}
+  .spec-table .srow.head .sc{font-weight:700; font-family:Georgia,'Times New Roman',serif; font-size:14px;}
+  .spec-table .srow.g1 .sc{background:#EDE8C6;}
+  .spec-table .srow.g2 .sc{background:#E5D2CC;}
+  .spec-table .srow.g3 .sc{background:#D6DEE6;}
+  .spec-table .srow .sc.flag{background:#F5D800; font-weight:700;}
+  .spec-table .sc.flag-soft{background:rgba(245,216,0,.28);}
+
+  .panel-example{
+    background:var(--ink); color:var(--paper); border-radius:2px;
+    padding:26px 28px; max-width:420px;
+  }
+  .panel-row{display:flex; gap:20px; margin-bottom:22px; flex-wrap:wrap;}
+  .panel-field label{
+    display:block; font-family:'JetBrains Mono',monospace; font-size:12px;
+    color:var(--steel-light); margin-bottom:6px;
+  }
+  .panel-field .value{
+    border:1px solid #4a4d4f; border-radius:4px; padding:8px 14px;
+    font-family:'JetBrains Mono',monospace; font-size:14px; min-width:80px;
+  }
+  .panel-checks{display:flex; flex-direction:column; gap:14px; margin-bottom:22px;}
+  .panel-check{display:flex; align-items:center; gap:10px; font-size:14px;}
+  .panel-check .box{
+    width:20px; height:20px; border-radius:4px; flex:0 0 20px;
+    display:flex; align-items:center; justify-content:center; font-size:13px;
+  }
+  .panel-check .box.on{background:#8FB8E8; color:var(--ink); font-weight:700;}
+  .panel-check .box.off{border:2px solid #4a4d4f;}
+  .panel-reset{
+    font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700;
+    background:#33363a; color:var(--paper); border:none; border-radius:6px;
+    padding:10px 18px; display:inline-flex; align-items:center; gap:8px;
+  }
+
+  /* contact */
+  .contact-box{
+    background:var(--ink); color:var(--paper); padding:48px 40px; border-radius:2px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:24px;
+  }
+  .contact-box h2{color:var(--paper); font-size:24px;}
+  .contact-box p{color:var(--steel-light); margin-top:6px; font-size:14px;}
+  .btn{
+    font-family:'JetBrains Mono',monospace; font-size:13px; background:var(--yellow);
+    color:var(--ink); padding:12px 22px; border-radius:2px; text-decoration:none;
+    display:inline-block; transition:transform .15s;
+  }
+  .btn:hover{transform:translateY(-2px);}
+
+  footer{
+    padding:40px 0 60px; display:flex; justify-content:space-between;
+    color:var(--steel-light); font-family:'JetBrains Mono',monospace; font-size:12px;
+    flex-wrap:wrap; gap:10px;
+  }
+
+  @media(max-width:720px){
+    .about-grid{grid-template-columns:1fr;}
+    header{padding:64px 0 48px;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    .btn{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="color-strip" aria-hidden="true">
+  <div class="patch c"></div>
+  <div class="patch m"></div>
+  <div class="patch y"></div>
+  <div class="patch k"></div>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow"><span class="dot"></span>Press room · Colour management</div>
+    <h1>Offset printing, made measurable.</h1>
+    <p class="lede">A running log of projects on colour control, print standardisation, and the tools I've
+    built to make press-room data easier, from press operator instructions to tone value increase.</p>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#expertise">Expertise</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <div class="register-row"><div class="register"></div></div>
+
+  <section id="about">
+    <div class="section-head"><span class="section-num mono">01</span><h2>About</h2></div>
+    <div class="about-grid">
+      <div>
+        <p>I'm Filip Claeys, teamlead in an offset press room, experienced KBA and Heidelberg
+        offset printer with years of hands-on experience in colour management. Responsible for
+        the transformation from density to Lab-values.</p>
+        <p class="muted">Most of what's here comes out of day-to-day press work: keeping colour
+        consistent from job to job, standardising how a crew reads and reacts to press data, and
+        building small tools so that decisions on the floor are based on numbers, not guesswork.</p>
+      </div>
+      <div class="credentials">
+        <dl>
+          <div><dt>Role</dt><dd>Teamlead · Press Room</dd></div>
+          <div><dt>Field</dt><dd>Offset printing, packaging sector</dd></div>
+          <div><dt>Education</dt><dd>Professional Bachelor, Printing Technology</dd></div>
+          <div><dt>Focus</dt><dd>Colour management · ECG · ISO 12647-2</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <div class="register-row"><div class="register"></div></div>
+
+  <section id="expertise">
+    <div class="section-head"><span class="section-num mono">02</span><h2>Areas of work</h2></div>
+    <div class="expertise-grid">
+      <div class="expertise-card">
+        <div class="swatch" style="background:var(--cyan)"></div>
+        <h3>Colour management</h3>
+        <p>Running and holding ISO 12647-2 targets across substrates, plates, and press conditions.</p>
+      </div>
+      <div class="expertise-card">
+        <div class="swatch" style="background:var(--magenta)"></div>
+        <h3>Process standardisation</h3>
+        <p>Turning ad-hoc habits into repeatable, documented procedures a full crew can follow.</p>
+      </div>
+      <div class="expertise-card">
+        <div class="swatch" style="background:var(--yellow)"></div>
+        <h3>Digital tooling</h3>
+        <p>Building lightweight apps that turn raw press measurements into something readable fast.</p>
+      </div>
+      <div class="expertise-card">
+        <div class="swatch" style="background:var(--green)"></div>
+        <h3>Training &amp; mentoring</h3>
+        <p>Bringing new press operators up to speed on colour theory and control fundamentals.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="register-row"><div class="register"></div></div>
+
+  <section id="projects">
+    <div class="section-head"><span class="section-num mono">03</span><h2>Projects</h2></div>
+
+    <div class="project">
+      <div class="project-head">
+        <h3>Automated (AI-driven) press operator instructions</h3>
+        <span class="status growing">Growing</span>
+      </div>
+      <p>Translating printing and job planning experience into logical commands, so AI can help
+      press operators in colour settings and paper format grouping without reaching for expensive
+      proprietary tools or software. Just HTML files that run on any browser. Accessible, low-cost
+      approach. No extra fees, no monthly subscriptions.</p>
+      <ul class="feature-list">
+        <li>Starts from raw Excel data, no new software required</li>
+        <li>Makes that data visible at a glance</li>
+        <li>Generates structured, clear handouts for operators</li>
+        <li>Drag and drop job colours onto the printing units, swap colours easily</li>
+        <li>Save fixed colour sequences so they fill in automatically</li>
+        <li>Colour swatches added to improve visibility (imported from colour library cxf-file)</li>
+        <li>Highlighted specifications where they matter</li>
+        <li>Clear operator instructions that reduce the chance of errors</li>
+        <li>Works with both CMYK and Extended Colour Gamut (ECG) printing</li>
+        <li>Automatically groups jobs by paper size, paper type, and die form</li>
+        <li>Calculates the minimal number of colour changes (washups) needed</li>
+        <li>Manual override always possible</li>
+        <li>Aimed at increasing press efficiency</li>
+      </ul>
+      <div class="swatch-example">
+        <div class="caption">Example view "colour swatches", mock data</div>
+        <div class="swatch-table">
+          <div class="greenbar"></div>
+          <div class="row">
+            <div class="head">DS4</div>
+            <div class="head">DS5</div>
+            <div class="head">DS6</div>
+            <div class="head">DS7</div>
+          </div>
+          <div class="row">
+            <div class="cell">
+              <span class="dot" style="background:#C23A4B"></span><span class="code">SW-014</span>
+              <div class="sub">(Red 014)</div>
+            </div>
+            <div class="cell">
+              <span class="dot" style="background:#1E3A5F"></span><span class="code">SW-027</span>
+              <div class="sub">(Blue 027)</div>
+            </div>
+            <div class="cell">
+              <span class="dot" style="background:#D6803A"></span><span class="code">SW-041</span>
+              <div class="sub">(Orange 041)</div>
+            </div>
+            <div class="cell">
+              <span class="dot" style="background:#3F8F5C"></span><span class="code">SW-058</span>
+              <div class="sub">(Green 058)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="swatch-example">
+        <div class="caption">Example view "highlighted specifications", mock data</div>
+        <div class="spec-table">
+          <div class="srow head">
+            <div class="sc">Job ref</div>
+            <div class="sc">Unit</div>
+            <div class="sc">Value</div>
+          </div>
+          <div class="srow g1">
+            <div class="sc">84021_2A1XZ</div>
+            <div class="sc">U00</div>
+            <div class="sc">6210</div>
+          </div>
+          <div class="srow g2">
+            <div class="sc">77350_4Bx1</div>
+            <div class="sc">U00</div>
+            <div class="sc">402</div>
+          </div>
+          <div class="srow g2">
+            <div class="sc">77350_4Bx1</div>
+            <div class="sc">U00</div>
+            <div class="sc">861</div>
+          </div>
+          <div class="srow g3">
+            <div class="sc">60214_1C4DZ</div>
+            <div class="sc">U11</div>
+            <div class="sc">1180</div>
+          </div>
+          <div class="srow g3">
+            <div class="sc">60214_1C4DZ</div>
+            <div class="sc">U11</div>
+            <div class="sc">505</div>
+          </div>
+          <div class="srow g3">
+            <div class="sc">60214_1C4DZ</div>
+            <div class="sc flag">U12</div>
+            <div class="sc">505</div>
+          </div>
+        </div>
+      </div>
+      <div class="swatch-example">
+        <div class="caption">Example view "job scheduling controls", mock data</div>
+        <div class="panel-example">
+          <div class="panel-row">
+            <div class="panel-field">
+              <label>Date</label>
+              <div class="value">10/08</div>
+            </div>
+            <div class="panel-field">
+              <label>Time</label>
+              <div class="value">20:00</div>
+            </div>
+          </div>
+          <div class="panel-checks">
+            <div class="panel-check"><span class="box on">&#10003;</span>Sort by die shape + format/board</div>
+            <div class="panel-check"><span class="box on">&#10003;</span>Minimise colour changes</div>
+            <div class="panel-check"><span class="box off"></span>Manual rearrange</div>
+          </div>
+          <button class="panel-reset">&#8635; Reset order</button>
+        </div>
+      </div>
+      <div class="tags"><span class="tag">AI</span><span class="tag">HTML</span><span class="tag">Operator instructions</span><span class="tag">Job automation</span><span class="tag">Low-cost tooling</span></div>
+    </div>
+
+    <div class="project">
+      <div class="project-head">
+        <h3>Dot gain monitoring, made easy</h3>
+        <span class="status active">Active</span>
+      </div>
+      <p>A simple way to keep an eye on dot gain (tone value increase) on the printing press, so
+      drift gets caught early, without needing expensive and complicated manufacturers software.</p>
+      <div class="tags"><span class="tag">Dot gain</span><span class="tag">Tone value</span><span class="tag">Easy monitoring</span></div>
+    </div>
+
+    <div class="project">
+      <div class="project-head">
+        <h3>Easy press room wins</h3>
+        <span class="status growing">Growing</span>
+      </div>
+      <p>A running list of easy, quick wins for the press room, the kind of fixes that don't need
+      a big project or budget, just a bit of attention and discipline.</p>
+      <ul class="feature-list">
+        <li>Implement housekeeping and a simple 5S (Six Sigma) system</li>
+        <li>Short checklist for periodic preventive maintenance, daily, weekly, and monthly</li>
+        <li>Track press condition: repairs needed, malfunctioning parts, and error messages, with planned follow-up actions</li>
+        <li>Monitor fount solution dosage, IPA percentage, pH, and conductivity</li>
+      </ul>
+      <div class="tags"><span class="tag">5S</span><span class="tag">Preventive maintenance</span><span class="tag">Press condition</span><span class="tag">Fount solution</span></div>
+    </div>
+  </section>
+
+  <div class="register-row"><div class="register"></div></div>
+
+  <section id="contact">
+    <div class="section-head"><span class="section-num mono">04</span><h2>Get in touch</h2></div>
+    <div class="contact-box">
+      <div>
+        <h2>Questions about a project?</h2>
+        <p>Happy to talk colour management, ECG, or press-room tooling.</p>
+      </div>
+      <a class="btn" href="mailto:hello@example.com">Send an email</a>
+    </div>
+  </section>
+
+  <footer>
+    <span>Filip Claeys · 2026</span>
+    <span>Built with care, run to tolerance.</span>
+  </footer>
+
+</div>
+</body>
+</html>
