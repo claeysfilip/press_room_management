@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://claeysfilip.github.io/press_room_management/sitemap.xml
